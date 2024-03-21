@@ -11,4 +11,7 @@ st.write("Path to Perfection")
 st.divider()
 st.write("")
 st.subheader("Video Upload")
-input_video = st.file_uploader("Choose a video: ", type=["mp4"])
+input_video = st.file_uploader("Choose a video: ")
+if (input_video):
+    st.write("input")
+    st.video(input_video)

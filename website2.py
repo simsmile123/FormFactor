@@ -4,32 +4,24 @@ import plotly.graph_objects as go
 import numpy as np
 from scipy.stats import pointbiserialr
 
-# Set page configuration to wide layout
 st.set_page_config(layout='wide')
-
-# Set page title
 st.title('Sweep AI')
 st.subheader('Upload a CSV file to analyze its contents')
 
-# File upload widget
 file = st.file_uploader('Upload CSV', type=['csv'])
 
 if file is not None:
-    # Read the CSV file
+
     df = pd.read_csv(file)
     df.columns = df.iloc[0]
     df = df[1:]
 
-    # Display the contents of the CSV file
     st.write('**CSV file contents:**')
     st.write(df)
 
-    st.markdown('---')  # Add separator
-
-    # Display analytics section
+    st.markdown('---')
     st.subheader('Analytics')
 
-    # Adding the actual analyzing code
     scrap_column_name = 'IsScrap'
     correlations = []
     all_columns = df.columns.to_list()
@@ -45,16 +37,10 @@ if file is not None:
         corr, p = pointbiserialr(scatter_x, scatter_y)
         correlations.append(round(corr*100, 2))
 
-    # Combine elements of lists a and b into tuples
     combined = list(zip(all_columns, correlations))
-
-    # Sort the combined list based on values from list b
     sorted_combined = sorted(combined, key=lambda x: x[1])
-
-    # Separate the sorted elements back into separate lists
     all_columns, correlations = zip(*sorted_combined)
 
-    # Bar graph
     st.write('**Columns vs Correlations**')
     categories = ['A', 'B', 'C', 'D']
     values = [20, 30, 15, 35]
@@ -96,7 +82,7 @@ if file is not None:
             break
 
         col1, col2 = st.columns(2)
-        # Scatter plot
+
         with col1:
             st.write(f'**{column_names[i]}**')
             corr, p = pointbiserialr(scatter_x, scatter_y)
@@ -134,7 +120,6 @@ if file is not None:
 
     st.markdown('---')
 
-    # Create columns for plots in a 2x2 grid layout
     col1, col2 = st.columns(2)
 
     # # Line plot

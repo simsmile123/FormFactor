@@ -18,9 +18,14 @@ def analyze_uploaded_file(text):
         openai.api_key = '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';
 
         # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
-        prompt_text = f"Read the following dataset and list the 3 most important factors contributing to scrap:" + text
+        prompt_text = f"Read the following dataset and ensure that it includes scrap:" + text
+        prompt_text = f"Analyze the additional columns for a correlation between whether there is scrap and the additional variable values. Additionally identify whether there is a positive or negative correlation. Save the correlation values and their sign for later use. Do not print them out." + text
+        prompt_text = f"Now that you've analyzed the columns, use the numbers that we saved to communicate which three columns have the highest correlation coefficient. Do not provide the correlation coefficient, only what the columns are." + text
+        prompt_text = f"Using the 3 columsn you identified, look at the data and concretely describe with numbers what column values are most likely to create or avoid scrap. Provide concrete, detailed, and clear actionable steps to minimize overall scrap. Make sure to convey confidence in your message." + text
 
-        system_prompt = f"You are a dataset analyzer working to find relationships in data, mainly look for outliers and find what columns in the scrap rows cause it to be 1 "
+        #system_prompt = f"You are a dataset analyzer working to find relationships in data, mainly look for outliers and find what columns in the scrap rows cause it to be 1 "
+
+        system_prompt = f"You are a dataset analyzer working to identify relationships in data. Data sets will belong to manufacturing plants and will always provide a column corresponding to scrap. No scrap will be indicated by a value of 0 and scrap will be indicated by a value of 1. You must mainly look for outliers and communicate what variables have a correlation with scrap values"
 
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",

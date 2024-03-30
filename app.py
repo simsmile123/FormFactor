@@ -43,8 +43,8 @@ def analyze_uploaded_file(text):
         openai.api_key = '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';
 
         # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
-        prompt_text = f"Take the following list of names of columns and their corresponding coefficients and find the top 3." + input_columns + " Give actionable steps on how to solve these problems in this format: Column 1: 'name of column'\n 1. 'actionable step 1'\n 2. 'actionable step 2'\n 3. 'actionable step 3'\n complete these for the next 3 columns"
-        system_prompt = f"You give suggestions for how to reduce scrap given the factors."
+        prompt_text = f"Take the following list of names of columns and their corresponding coefficients and find the top 3." + input_columns + " Give actionable steps on how to minimize scrap because of these columns in a manufacturing facility in this format: Column 1: 'name of column'\n 1. 'actionable step 1'\n 2. 'actionable step 2'\n 3. 'actionable step 3'\n complete these for the next 3 columns"
+        system_prompt = f"You give suggestions for how to reduce scrap in a manufacturing facility given the factors."
 
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -172,9 +172,28 @@ if file is not None:
         st.plotly_chart(fig_scatter, use_container_width=True, align="center")
 
     st.markdown('---')
-    st.subheader('Suggestions to Reduce Scrap')
+    st.header('Suggestions to Reduce Scrap')
     st.write(final_text)
     st.markdown('---')
+
+    st.markdown('---')
+    st.header('Premium Tier')
+    st.subheader('Hardware Configuration Recommendations')
+
+    system_prompt = "Please take the following columns and their values. Ignore the scrap column. " + parsed_text + "Find the ideal value which is determined by rows that have a 0 in the scrap column and output the results in the following format example: OvenCNT: 79.230944, add a newline for each column and repeat for all columns"
+    prompt_text = "You are a hardware configuration recommender."
+
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt_text}
+        ]
+    )
+    output = response.choices[0].message.content
+    st.write(output)
+    st.markdown('---')
+
 
     # Centered text using HTML and CSS
     st.write('<div style="text-align: center;">Thank you for using <span style="font-size: 22px; font-weight: 800;">SweepAI</span>!</div>', unsafe_allow_html=True)

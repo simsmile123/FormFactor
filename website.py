@@ -9,35 +9,39 @@ load_dotenv()
 OPEN_API_KEY = os.getenv("OPEN_API_KEY")
 openai.api_key = OPEN_API_KEY
 
-# Function to process the uploaded file and interact with OpenAI's API
+
 def analyze_uploaded_file(text):
-    # Assuming the file is a text file. Adjust accordingly for other types.
-    try:
+    system_prompt = "You are a dataset analyzer working to identify relationships in data. Data sets will belong to manufacturing plants and will always provide a column corresponding to scrap. No scrap will be indicated by a value of 0 and scrap will be indicated by a value of 1. You must mainly look for outliers and communicate what variables have a correlation with scrap values. When you provide a response, do not use words that imply tentativeness like would and could, instead use words like will that express certainty."
 
-        # Initialize OpenAI API (ensure you've set your API key in your environment)
-        openai.api_key = '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';
+    # Initialize the conversation with the system prompt
+    conversation = [{"role": "system", "content": system_prompt}]
 
-        # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
-        prompt_text = f"Read the following dataset and ensure that it includes scrap:" + text
-        prompt_text = f"Analyze the additional columns for a correlation between whether there is scrap and the additional variable values. Additionally identify whether there is a positive or negative correlation. Save the correlation values and their sign for later use. Do not print them out." + text
-        prompt_text = f"Now that you've analyzed the columns, use the numbers that we saved to communicate which three columns have the highest correlation coefficient. Do not provide the correlation coefficient, only what the columns are." + text
-        prompt_text = f"Using the 3 columsn you identified, look at the data and concretely describe with numbers what column values are most likely to create or avoid scrap. Provide concrete, detailed, and clear actionable steps to minimize overall scrap. Make sure to convey confidence in your message." + text
+    # Define the questions to be asked in sequence
+    questions = [
+        "Read the following dataset and ensure that it includes scrap:",
+        "Analyze the additional columns for a correlation between whether there is scrap and the additional variable values. Additionally identify whether there is a positive or negative correlation. Save the correlation values and their sign for later use. Print them out.",
+        "Now that you've analyzed the columns, use the numbers that we saved to communicate which three columns have the highest correlation coefficient. Do not provide the correlation coefficient, only what the columns are.",
+        "Using the 3 columns you identified, look at the data and concretely describe with numbers what column values are most likely to create or avoid scrap. Provide concrete, detailed, and clear actionable steps to minimize overall scrap. Make sure to convey confidence in your message."
+    ]
 
-        #system_prompt = f"You are a dataset analyzer working to find relationships in data, mainly look for outliers and find what columns in the scrap rows cause it to be 1 "
+    output_message = ""
 
-        system_prompt = f"You are a dataset analyzer working to identify relationships in data. Data sets will belong to manufacturing plants and will always provide a column corresponding to scrap. No scrap will be indicated by a value of 0 and scrap will be indicated by a value of 1. You must mainly look for outliers and communicate what variables have a correlation with scrap values"
+    for question in questions:
+        # Assume 'text' variable contains dataset info or relevant context
+        prompt_text = question + text
+        message = {"role": "user", "content": prompt_text}
 
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt_text}
-            ]
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return str(e)  # For debugging purposes
+        conversation.append(message)
+        completion = openai.chat.completions.create(model="gpt-3.5-turbo", messages=conversation)
+        response_message = completion.choices[0].message.content
 
+        #print(f"Assistant: {response_message}")
+
+        # Update the conversation history with the model's response
+        #conversation.append({"role": "assistant", "content": response_message})
+        output_message += "Previous message: " + response_message
+
+    return output_message
 
 def csv_to_text(file_path):
     # Load the Excel file

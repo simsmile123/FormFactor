@@ -6,6 +6,7 @@ import openai
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+from scipy.stats import pointbiserialr
 
 load_dotenv()
 OPEN_API_KEY = os.getenv("OPEN_API_KEY")
@@ -16,10 +17,34 @@ def analyze_uploaded_file(text):
     # Assuming the file is a text file. Adjust accordingly for other types.
     try:
 
-        # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
-        prompt_text = f"Read the following dataset and list the 3 most important factors contributing to scrap:" + text
+        scrap_column_name = 'IsScrap'
+        correlations = []
+        all_columns = df.columns.to_list()
+        for column in all_columns:
+            if column == scrap_column_name:
+                all_columns.remove(column)
+                break
+        for i in range(len(all_columns)):
+            if all_columns[i] == scrap_column_name:
+                continue
+            scatter_x = df[all_columns[i]].values.astype(float)
+            scatter_y = df[scrap_column_name].values.astype(float)
+            corr, p = pointbiserialr(scatter_x, scatter_y)
+            correlations.append(round(corr * 100, 2))
 
-        system_prompt = f"You are a dataset analyzer working to find relationships in data, mainly look for outliers and find what columns in the scrap rows cause it to be 1 "
+        combined = list(zip(all_columns, correlations))
+        sorted_combined = sorted(combined, key=lambda x: x[1])
+        all_columns, correlations = zip(*sorted_combined)
+        input_columns = ""
+        for i in range(len(all_columns)):
+            input_columns += str(all_columns[i]) + ":" + str(correlations[i]) + ","
+
+        # Initialize OpenAI API (ensure you've set your API key in your environment)
+        openai.api_key = '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';
+
+        # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
+        prompt_text = f"Take the following list of names of columns and their corresponding coefficients and find the top 3." + input_columns + " Give actionable steps on how to solve these problems in this format: Column 1: 'name of column'\n 1. 'actionable step 1'\n 2. 'actionable step 2'\n 3. 'actionable step 3'\n complete these for the next 3 columns"
+        system_prompt = f"You give suggestions for how to reduce scrap given the factors."
 
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -31,6 +56,7 @@ def analyze_uploaded_file(text):
         return response.choices[0].message.content
     except Exception as e:
         return str(e)  # For debugging purposes
+
 
 def csv_to_text(df):
     # Initialize a list to hold the text representation of each column
@@ -63,7 +89,6 @@ if file is not None:
 
     parsed_text = csv_to_text(df)
     final_text = analyze_uploaded_file(parsed_text)
-    st.write(final_text)
 
     # Display the contents of the CSV file
     st.write('**CSV file contents:**')
@@ -147,9 +172,8 @@ if file is not None:
         st.plotly_chart(fig_scatter, use_container_width=True, align="center")
 
     st.markdown('---')
-    st.subheader('Verdict')
-    st.write('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fermentum massa et sapien vehicula, sed lacinia ligula cursus. Quisque ut risus at est placerat vulputate. Nulla facilisi. Nam fringilla mi ac quam sollicitudin, nec tempor metus bibendum. Maecenas a quam velit. Donec sodales pharetra diam, sit amet malesuada magna.')
-
+    st.subheader('Suggestions to Reduce Scrap')
+    st.write(final_text)
     st.markdown('---')
 
     # Centered text using HTML and CSS

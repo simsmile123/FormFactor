@@ -8,7 +8,7 @@ st.set_page_config(layout='wide')
 
 # Set page title
 st.title('Sweep AI')
-st.subheader('Upload a CSV file and display its contents')
+st.subheader('Upload a CSV file to analyze its contents')
 
 # File upload widget
 file = st.file_uploader('Upload CSV', type=['csv'])
@@ -97,3 +97,12 @@ if file is not None:
             height=300,
         )
         st.plotly_chart(fig_scatter, use_container_width=True, align="center")
+
+    st.markdown('---')
+    st.subheader('Verdict')
+    st.write('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fermentum massa et sapien vehicula, sed lacinia ligula cursus. Quisque ut risus at est placerat vulputate. Nulla facilisi. Nam fringilla mi ac quam sollicitudin, nec tempor metus bibendum. Maecenas a quam velit. Donec sodales pharetra diam, sit amet malesuada magna.')
+
+    st.markdown('---')
+
+    # Centered text using HTML and CSS
+    st.write('<div style="text-align: center;">Thank you for using <span style="font-size: 22px; font-weight: 800;">SweepAI</span>!</div>', unsafe_allow_html=True)

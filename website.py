@@ -1,12 +1,13 @@
 import streamlit as st
-from dotenv import load_dotenv
-import os
 from openai import OpenAI
 import pandas as pd
 import openai
+from dotenv import load_dotenv
+import os
 
 load_dotenv()
-client = OpenAI()
+OPEN_API_KEY = os.getenv("OPEN_API_KEY")
+openai.api_key = OPEN_API_KEY
 
 # Function to process the uploaded file and interact with OpenAI's API
 def analyze_uploaded_file(text):
@@ -14,14 +15,14 @@ def analyze_uploaded_file(text):
     try:
 
         # Initialize OpenAI API (ensure you've set your API key in your environment)
-        openai.api_key = os.getenv('OPENAI_API_KEY');
+        openai.api_key = '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';
 
         # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
         prompt_text = f"Read the following dataset and list the 3 most important factors contributing to scrap:" + text
 
         system_prompt = f"You are a dataset analyzer working to find relationships in data, mainly look for outliers and find what columns in the scrap rows cause it to be 1 "
 
-        response = client.chat.completions.create(
+        response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -33,9 +34,9 @@ def analyze_uploaded_file(text):
         return str(e)  # For debugging purposes
 
 
-def excel_to_text(file_path):
+def csv_to_text(file_path):
     # Load the Excel file
-    df = pd.read_excel(file_path, engine='openpyxl')
+    df = pd.read_csv(file_path)
 
     # Initialize a list to hold the text representation of each column
     text_columns = []
@@ -64,9 +65,9 @@ st.write("")
 st.subheader("Video Upload 2")
 
 
-uploaded_file = st.file_uploader("Upload your file", type=["xlsx"])
+uploaded_file = st.file_uploader("Upload your file", type=["csv"])
 if uploaded_file is not None:
-    parsed_text = excel_to_text(uploaded_file)
+    parsed_text = csv_to_text(uploaded_file)
     final_text = analyze_uploaded_file(parsed_text)
     st.write(final_text)
     # Call the function to analyze the file

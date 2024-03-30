@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import numpy as np
 
@@ -22,77 +21,79 @@ if file is not None:
     st.write('**CSV file contents:**')
     st.write(df)
 
+    st.markdown('---')  # Add separator
+
+    # Display analytics section
     st.subheader('Analytics')
 
-    x = np.linspace(0, 10, 100)
-    y = np.sin(x)
+    # Create columns for plots in a 2x2 grid layout
+    col1, col2 = st.columns(2)
 
-    # Create a Plotly figure
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=y, mode='lines'))
+    # Line plot
+    with col1:
+        st.write('**Interactive Line Plot**')
+        x = np.linspace(0, 10, 100)
+        y = np.sin(x)
+        fig_line = go.Figure()
+        fig_line.add_trace(go.Scatter(x=x, y=y, mode='lines'))
+        fig_line.update_layout(
+            xaxis_title='X-axis',
+            yaxis_title='Y-axis',
+            template='plotly_white',
+            hovermode='x',
+            margin=dict(l=40, r=40, t=40, b=40),
+            width=400,
+            height=300,
+        )
+        st.plotly_chart(fig_line, use_container_width=True, align="center")
 
-    # Update layout for better visual appearance
-    fig.update_layout(
-        title='Interactive Line Plot',
-        xaxis_title='X-axis',
-        yaxis_title='Y-axis',
-        template='plotly_white',  # Set the plot background to white for a visually pleasing appearance
-        hovermode='x',  # Display hover information along the x-axis
-        margin=dict(l=40, r=40, t=40, b=40),  # Add margin for better visibility
-        width=800,  # Set the plot width
-        height=500,  # Set the plot height
-    )
+    # Bar graph
+    with col2:
+        st.write('**Bar Graph**')
+        categories = ['A', 'B', 'C', 'D']
+        values = [20, 30, 15, 35]
+        fig_bar = go.Figure()
+        fig_bar.add_trace(go.Bar(x=categories, y=values))
+        fig_bar.update_layout(
+            xaxis_title='Categories',
+            yaxis_title='Values',
+            template='plotly_white',
+            hovermode='x',
+            margin=dict(l=40, r=40, t=40, b=40),
+            width=400,
+            height=300,
+        )
 
-    # Display the plot using st.plotly_chart() for interactivity
-    st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig_bar, use_container_width=True, align="center")
 
-    categories = ['A', 'B', 'C', 'D']
-    values = [20, 30, 15, 35]
-    scatter_x = np.random.rand(50)
-    scatter_y = np.random.rand(50)
+    # Pie chart
+    col3, col4 = st.columns(2)
+    with col3:
+        st.write('**Pie Chart**')
+        fig_pie = go.Figure()
+        fig_pie.add_trace(go.Pie(labels=categories, values=values))
+        fig_pie.update_layout(
+            template='plotly_white',
+            margin=dict(l=40, r=40, t=40, b=40),
+            width=400,
+            height=300,
+        )
+        st.plotly_chart(fig_pie, use_container_width=True, align="center")
 
-    # Create a Plotly bar graph
-    fig_bar = go.Figure()
-    fig_bar.add_trace(go.Bar(x=categories, y=values))
-    fig_bar.update_layout(
-        title='Bar Graph',
-        xaxis_title='Categories',
-        yaxis_title='Values',
-        template='plotly_white',
-        hovermode='x',
-        margin=dict(l=40, r=40, t=40, b=40),
-        width=800,
-        height=400,
-    )
-
-    # Create a Plotly pie chart
-    fig_pie = go.Figure()
-    fig_pie.add_trace(go.Pie(labels=categories, values=values))
-    fig_pie.update_layout(
-        title='Pie Chart',
-        template='plotly_white',
-        margin=dict(l=40, r=40, t=40, b=40),
-        width=800,
-        height=400,
-    )
-
-    # Create a Plotly scatter plot
-    fig_scatter = go.Figure()
-    fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
-    fig_scatter.update_layout(
-        title='Scatter Plot',
-        xaxis_title='X-axis',
-        yaxis_title='Y-axis',
-        template='plotly_white',
-        hovermode='closest',
-        margin=dict(l=40, r=40, t=40, b=40),
-        width=800,
-        height=400,
-    )
-
-    # Display the plots using st.plotly_chart() for interactivity
-    st.plotly_chart(fig_bar, use_container_width=True)
-    st.plotly_chart(fig_pie, use_container_width=True)
-    st.plotly_chart(fig_scatter, use_container_width=True)
-
-
+    # Scatter plot
+    with col4:
+        st.write('**Scatter Plot**')
+        scatter_x = np.random.rand(50)
+        scatter_y = np.random.rand(50)
+        fig_scatter = go.Figure()
+        fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
+        fig_scatter.update_layout(
+            xaxis_title='X-axis',
+            yaxis_title='Y-axis',
+            template='plotly_white',
+            hovermode='closest',
+            margin=dict(l=40, r=40, t=40, b=40),
+            width=400,
+            height=300,
+        )
+        st.plotly_chart(fig_scatter, use_container_width=True, align="center")
